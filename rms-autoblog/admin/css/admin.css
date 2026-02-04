@@ -1,0 +1,898 @@
+/**
+ * TechNews Autoblog Admin Styles
+ * Modern Design - Google Material Design Inspired
+ */
+
+/* Variables - Dark Theme with Vibrant Accents */
+:root {
+    /* Primary Colors */
+    --rms-bg-primary: #0f0f23;
+    --rms-bg-secondary: #1a1a2e;
+    --rms-bg-card: #16213e;
+    --rms-bg-card-hover: #1f3460;
+
+    /* Accent Colors */
+    --rms-accent-primary: #667eea;
+    --rms-accent-secondary: #764ba2;
+    --rms-accent-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --rms-accent-glow: rgba(102, 126, 234, 0.3);
+
+    /* Success/Error */
+    --rms-success: #10b981;
+    --rms-success-bg: rgba(16, 185, 129, 0.15);
+    --rms-error: #ef4444;
+    --rms-error-bg: rgba(239, 68, 68, 0.15);
+    --rms-warning: #f59e0b;
+
+    /* Text Colors */
+    --rms-text-primary: #ffffff;
+    --rms-text-secondary: #94a3b8;
+    --rms-text-muted: #64748b;
+
+    /* Border & Shadow */
+    --rms-border: rgba(255, 255, 255, 0.1);
+    --rms-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+    --rms-shadow-md: 0 4px 20px rgba(0, 0, 0, 0.3);
+    --rms-shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.4);
+    --rms-shadow-glow: 0 0 30px var(--rms-accent-glow);
+
+    /* Radius */
+    --rms-radius-sm: 8px;
+    --rms-radius-md: 12px;
+    --rms-radius-lg: 16px;
+    --rms-radius-xl: 24px;
+
+    /* Transitions */
+    --rms-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Reset for WP Admin */
+.rmsautoblog-autoblog-wrap {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 24px !important;
+    background: var(--rms-bg-primary) !important;
+    min-height: calc(100vh - 32px) !important;
+    margin-left: -20px !important;
+    margin-right: -20px !important;
+    margin-top: -20px !important;
+    box-sizing: border-box !important;
+}
+
+.rmsautoblog-autoblog-wrap * {
+    box-sizing: border-box;
+}
+
+/* Header - Hero Section */
+.rmsautoblog-autoblog-wrap .rmsautoblog-header {
+    background: var(--rms-accent-gradient) !important;
+    border-radius: var(--rms-radius-xl) !important;
+    padding: 48px 40px !important;
+    margin-bottom: 32px !important;
+    position: relative !important;
+    overflow: hidden !important;
+    box-shadow: var(--rms-shadow-glow) !important;
+}
+
+.rmsautoblog-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.5;
+}
+
+.rmsautoblog-autoblog-wrap .rmsautoblog-header h1 {
+    margin: 0 0 12px 0 !important;
+    font-size: 32px !important;
+    font-weight: 700 !important;
+    color: var(--rms-text-primary) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
+    position: relative !important;
+    z-index: 1 !important;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
+    padding: 0 !important;
+}
+
+.rmsautoblog-header h1 .dashicons {
+    font-size: 36px;
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 8px;
+    box-sizing: content-box;
+}
+
+.rmsautoblog-header .description {
+    margin: 0;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.85);
+    position: relative;
+    z-index: 1;
+    max-width: 600px;
+}
+
+/* Controls Section - Glassmorphism */
+.rmsautoblog-autoblog-wrap .rmsautoblog-controls {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    background: var(--rms-bg-card) !important;
+    backdrop-filter: blur(10px) !important;
+    padding: 24px 28px !important;
+    border-radius: var(--rms-radius-lg) !important;
+    margin-bottom: 32px !important;
+    box-shadow: var(--rms-shadow-md) !important;
+    border: 1px solid var(--rms-border) !important;
+    flex-wrap: wrap !important;
+    gap: 20px !important;
+}
+
+.rmsautoblog-filters {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.rmsautoblog-autoblog-wrap .rmsautoblog-filters label {
+    font-weight: 600 !important;
+    color: var(--rms-text-primary) !important;
+    font-size: 14px !important;
+}
+
+.rmsautoblog-autoblog-wrap .rmsautoblog-select {
+    padding: 12px 16px !important;
+    background: var(--rms-bg-secondary) !important;
+    border: 1px solid var(--rms-border) !important;
+    border-radius: var(--rms-radius-sm) !important;
+    font-size: 14px !important;
+    min-width: 220px !important;
+    color: var(--rms-text-primary) !important;
+    transition: var(--rms-transition) !important;
+    cursor: pointer !important;
+}
+
+.rmsautoblog-autoblog-wrap .rmsautoblog-select:hover {
+    border-color: var(--rms-accent-primary) !important;
+}
+
+.rmsautoblog-autoblog-wrap .rmsautoblog-select:focus {
+    outline: none !important;
+    border-color: var(--rms-accent-primary) !important;
+    box-shadow: 0 0 0 3px var(--rms-accent-glow) !important;
+}
+
+/* Buttons - Gradient & Glow */
+.button-hero {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 28px !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    height: auto !important;
+    background: var(--rms-accent-gradient) !important;
+    border: none !important;
+    border-radius: var(--rms-radius-md) !important;
+    color: white !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--rms-shadow-sm), 0 0 20px var(--rms-accent-glow);
+    transition: var(--rms-transition) !important;
+    cursor: pointer;
+}
+
+.button-hero:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: var(--rms-shadow-md), 0 0 30px var(--rms-accent-glow) !important;
+    background: linear-gradient(135deg, #7c8ef5 0%, #8a5cb8 100%) !important;
+}
+
+.button-hero:active {
+    transform: translateY(0) !important;
+}
+
+.button-hero .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+}
+
+/* Status Messages */
+.rmsautoblog-status {
+    background: var(--rms-bg-card);
+    padding: 20px 24px;
+    border-radius: var(--rms-radius-md);
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: var(--rms-shadow-sm);
+    border: 1px solid var(--rms-border);
+    color: var(--rms-text-primary);
+}
+
+.rmsautoblog-status .spinner {
+    float: none;
+    margin: 0;
+    filter: brightness(2);
+}
+
+#rmsautoblog-error {
+    background: var(--rms-error-bg) !important;
+    border: 1px solid var(--rms-error) !important;
+    color: var(--rms-text-primary) !important;
+    border-radius: var(--rms-radius-md) !important;
+    padding: 16px 20px !important;
+    margin-bottom: 24px;
+}
+
+#rmsautoblog-success {
+    background: var(--rms-success-bg) !important;
+    border: 1px solid var(--rms-success) !important;
+    color: var(--rms-text-primary) !important;
+    border-radius: var(--rms-radius-md) !important;
+    padding: 16px 20px !important;
+    margin-bottom: 24px;
+}
+
+/* Trends Grid */
+.rmsautoblog-autoblog-wrap .rmsautoblog-trends-container {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)) !important;
+    gap: 24px !important;
+}
+
+/* Empty State */
+.rmsautoblog-autoblog-wrap .rmsautoblog-empty-state {
+    grid-column: 1 / -1 !important;
+    text-align: center !important;
+    padding: 80px 40px !important;
+    background: var(--rms-bg-card) !important;
+    border-radius: var(--rms-radius-lg) !important;
+    border: 2px dashed var(--rms-border) !important;
+}
+
+.rmsautoblog-empty-state .dashicons {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: var(--rms-accent-primary);
+    opacity: 0.6;
+    margin-bottom: 8px;
+}
+
+.rmsautoblog-autoblog-wrap .rmsautoblog-empty-state h3 {
+    margin: 16px 0 12px 0 !important;
+    font-size: 22px !important;
+    font-weight: 600 !important;
+    color: var(--rms-text-primary) !important;
+}
+
+.rmsautoblog-empty-state p {
+    color: var(--rms-text-secondary);
+    margin: 0;
+    font-size: 15px;
+}
+
+/* Trend Cards - Premium Look */
+.rmsautoblog-autoblog-wrap .rmsautoblog-trend-card {
+    background: var(--rms-bg-card) !important;
+    border-radius: var(--rms-radius-lg) !important;
+    padding: 24px !important;
+    box-shadow: var(--rms-shadow-sm) !important;
+    border: 1px solid var(--rms-border) !important;
+    transition: var(--rms-transition) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.rmsautoblog-trend-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--rms-accent-gradient);
+    opacity: 0;
+    transition: var(--rms-transition);
+}
+
+.rmsautoblog-autoblog-wrap .rmsautoblog-trend-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: var(--rms-shadow-lg) !important;
+    border-color: var(--rms-accent-primary) !important;
+    background: var(--rms-bg-card-hover) !important;
+}
+
+.rmsautoblog-trend-card:hover::before {
+    opacity: 1;
+}
+
+.trend-category {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.category-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+
+/* Category Colors - Vibrant */
+.category-seo {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.2));
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.category-marketing,
+.category-digital-marketing {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(139, 92, 246, 0.2));
+    color: #c084fc;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.category-web-development {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(22, 163, 74, 0.2));
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.category-mobile-development {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(234, 88, 12, 0.2));
+    color: #fb923c;
+    border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.category-general {
+    background: linear-gradient(135deg, rgba(100, 116, 139, 0.2), rgba(71, 85, 105, 0.2));
+    color: #94a3b8;
+    border: 1px solid rgba(100, 116, 139, 0.3);
+}
+
+.trend-source {
+    font-size: 12px;
+    color: var(--rms-text-muted);
+    font-weight: 500;
+}
+
+.rmsautoblog-autoblog-wrap .trend-title {
+    font-size: 17px !important;
+    font-weight: 600 !important;
+    margin: 0 0 10px 0 !important;
+    color: var(--rms-text-primary) !important;
+    line-height: 1.45 !important;
+}
+
+.rmsautoblog-autoblog-wrap .trend-description {
+    font-size: 14px !important;
+    color: var(--rms-text-secondary) !important;
+    margin: 0 0 16px 0 !important;
+    line-height: 1.6 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 3 !important;
+    line-clamp: 3 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+}
+
+.rmsautoblog-autoblog-wrap .trend-meta {
+    display: flex !important;
+    align-items: center !important;
+    gap: 20px !important;
+    font-size: 12px !important;
+    color: var(--rms-text-muted) !important;
+    margin-bottom: 20px !important;
+    margin-top: auto !important;
+    padding-top: 16px !important;
+    border-top: 1px solid var(--rms-border) !important;
+}
+
+.trend-meta .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    opacity: 0.7;
+}
+
+.trend-link {
+    text-decoration: none;
+    color: var(--rms-accent-primary);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: var(--rms-transition);
+}
+
+.trend-link:hover {
+    color: #8b9cf7;
+}
+
+/* Card Button */
+.rmsautoblog-create-btn {
+    width: 100%;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px !important;
+    background: var(--rms-accent-gradient) !important;
+    border: none !important;
+    border-radius: var(--rms-radius-sm) !important;
+    color: white !important;
+    font-weight: 600 !important;
+    transition: var(--rms-transition) !important;
+}
+
+.rmsautoblog-create-btn:hover {
+    opacity: 0.9;
+    transform: scale(1.02);
+    box-shadow: 0 4px 15px var(--rms-accent-glow);
+}
+
+/* Modal - Glassmorphism */
+.rmsautoblog-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rmsautoblog-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+}
+
+.rmsautoblog-modal-content {
+    position: relative;
+    background: var(--rms-bg-card);
+    border-radius: var(--rms-radius-xl);
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow: auto;
+    box-shadow: var(--rms-shadow-lg);
+    border: 1px solid var(--rms-border);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.rmsautoblog-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 28px;
+    border-bottom: 1px solid var(--rms-border);
+}
+
+.rmsautoblog-modal-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--rms-text-primary);
+}
+
+.rmsautoblog-modal-close {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--rms-text-secondary);
+    padding: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: var(--rms-transition);
+}
+
+.rmsautoblog-modal-close:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--rms-text-primary);
+}
+
+.rmsautoblog-modal-body {
+    padding: 28px;
+}
+
+.rmsautoblog-form-group {
+    margin-bottom: 20px;
+}
+
+.rmsautoblog-form-group:last-child {
+    margin-bottom: 0;
+}
+
+.rmsautoblog-form-group>label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--rms-text-primary);
+    font-size: 14px;
+}
+
+.rmsautoblog-form-group input[type="text"],
+.rmsautoblog-form-group .rmsautoblog-select {
+    width: 100%;
+    background: var(--rms-bg-secondary);
+    border: 1px solid var(--rms-border);
+    color: var(--rms-text-primary);
+    padding: 12px 16px;
+    border-radius: var(--rms-radius-sm);
+    font-size: 14px;
+    transition: var(--rms-transition);
+}
+
+.rmsautoblog-form-group input[type="text"]:focus,
+.rmsautoblog-form-group .rmsautoblog-select:focus {
+    outline: none;
+    border-color: var(--rms-accent-primary);
+    box-shadow: 0 0 0 3px var(--rms-accent-glow);
+}
+
+.rmsautoblog-form-group input[type="checkbox"] {
+    accent-color: var(--rms-accent-primary);
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+.rmsautoblog-form-group label {
+    color: var(--rms-text-secondary);
+}
+
+.rmsautoblog-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 20px 28px;
+    border-top: 1px solid var(--rms-border);
+    background: var(--rms-bg-secondary);
+    border-radius: 0 0 var(--rms-radius-xl) var(--rms-radius-xl);
+}
+
+.rmsautoblog-modal-footer .button {
+    padding: 10px 20px !important;
+    border-radius: var(--rms-radius-sm) !important;
+    font-weight: 500 !important;
+    transition: var(--rms-transition) !important;
+}
+
+.rmsautoblog-modal-footer .rmsautoblog-modal-cancel {
+    background: transparent !important;
+    border: 1px solid var(--rms-border) !important;
+    color: var(--rms-text-secondary) !important;
+}
+
+.rmsautoblog-modal-footer .rmsautoblog-modal-cancel:hover {
+    background: var(--rms-bg-card) !important;
+    color: var(--rms-text-primary) !important;
+}
+
+/* Settings Page */
+.rmsautoblog-settings-card {
+    background: var(--rms-bg-card);
+    border-radius: var(--rms-radius-lg);
+    padding: 32px;
+    margin-bottom: 28px;
+    box-shadow: var(--rms-shadow-sm);
+    border: 1px solid var(--rms-border);
+}
+
+.rmsautoblog-settings-card h2 {
+    margin: 0 0 24px 0;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--rms-border);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--rms-text-primary);
+}
+
+.rmsautoblog-settings-card .form-table th {
+    padding-left: 0;
+    color: var(--rms-text-primary);
+    font-weight: 600;
+}
+
+.rmsautoblog-settings-card .form-table td {
+    color: var(--rms-text-secondary);
+}
+
+.rmsautoblog-settings-card .form-table input[type="text"],
+.rmsautoblog-settings-card .form-table input[type="password"],
+.rmsautoblog-settings-card .form-table textarea,
+.rmsautoblog-settings-card .form-table select {
+    background: var(--rms-bg-secondary);
+    border: 1px solid var(--rms-border);
+    color: var(--rms-text-primary);
+    border-radius: var(--rms-radius-sm);
+    padding: 10px 14px;
+    transition: var(--rms-transition);
+}
+
+.rmsautoblog-settings-card .form-table input:focus,
+.rmsautoblog-settings-card .form-table textarea:focus,
+.rmsautoblog-settings-card .form-table select:focus {
+    outline: none;
+    border-color: var(--rms-accent-primary);
+    box-shadow: 0 0 0 3px var(--rms-accent-glow);
+}
+
+.rmsautoblog-settings-card .description {
+    color: var(--rms-text-muted) !important;
+}
+
+.rmsautoblog-settings-card .description a {
+    color: var(--rms-accent-primary);
+}
+
+.rmsautoblog-settings-card .button {
+    background: var(--rms-bg-secondary) !important;
+    border: 1px solid var(--rms-border) !important;
+    color: var(--rms-text-primary) !important;
+    border-radius: var(--rms-radius-sm) !important;
+    transition: var(--rms-transition) !important;
+}
+
+.rmsautoblog-settings-card .button:hover {
+    background: var(--rms-bg-card-hover) !important;
+    border-color: var(--rms-accent-primary) !important;
+}
+
+.rmsautoblog-settings-card code {
+    background: var(--rms-bg-secondary);
+    color: var(--rms-accent-primary);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.rmsautoblog-api-result {
+    margin-top: 12px;
+    padding: 12px 16px;
+    border-radius: var(--rms-radius-sm);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.rmsautoblog-api-result.success {
+    background: var(--rms-success-bg);
+    color: var(--rms-success);
+    border: 1px solid var(--rms-success);
+}
+
+.rmsautoblog-api-result.error {
+    background: var(--rms-error-bg);
+    color: var(--rms-error);
+    border: 1px solid var(--rms-error);
+}
+
+/* Stats Section */
+.rmsautoblog-stats {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.stat-box {
+    background: var(--rms-bg-secondary);
+    padding: 28px 32px;
+    border-radius: var(--rms-radius-md);
+    text-align: center;
+    min-width: 140px;
+    border: 1px solid var(--rms-border);
+    transition: var(--rms-transition);
+}
+
+.stat-box:hover {
+    border-color: var(--rms-accent-primary);
+    box-shadow: 0 0 20px var(--rms-accent-glow);
+}
+
+.stat-number {
+    display: block;
+    font-size: 40px;
+    font-weight: 700;
+    background: var(--rms-accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.stat-label {
+    display: block;
+    font-size: 13px;
+    color: var(--rms-text-muted);
+    margin-top: 6px;
+    font-weight: 500;
+}
+
+/* Settings Form Submit Button */
+.rmsautoblog-settings-form .button-primary {
+    background: var(--rms-accent-gradient) !important;
+    border: none !important;
+    border-radius: var(--rms-radius-md) !important;
+    padding: 12px 28px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    height: auto !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 15px var(--rms-accent-glow);
+    transition: var(--rms-transition) !important;
+}
+
+.rmsautoblog-settings-form .button-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px var(--rms-accent-glow);
+}
+
+/* Checkbox styling */
+.rmsautoblog-settings-card input[type="checkbox"] {
+    accent-color: var(--rms-accent-primary);
+    width: 18px;
+    height: 18px;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 782px) {
+    .rmsautoblog-autoblog-wrap {
+        padding: 16px;
+        margin-left: -10px;
+        margin-right: -10px;
+    }
+
+    .rmsautoblog-header {
+        padding: 32px 24px;
+    }
+
+    .rmsautoblog-header h1 {
+        font-size: 24px;
+    }
+
+    .rmsautoblog-controls {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 20px;
+    }
+
+    .rmsautoblog-filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .rmsautoblog-select {
+        min-width: 100%;
+    }
+
+    .button-hero {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .rmsautoblog-trends-container {
+        grid-template-columns: 1fr;
+    }
+
+    .rmsautoblog-settings-card {
+        padding: 20px;
+    }
+}
+
+/* Loading Animation */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.loading-shimmer {
+    background: linear-gradient(90deg,
+            var(--rms-bg-secondary) 25%,
+            var(--rms-bg-card-hover) 50%,
+            var(--rms-bg-secondary) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+/* Actions buttons layout */
+.rmsautoblog-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* Custom modal input and textarea styles */
+.rmsautoblog-input,
+.rmsautoblog-textarea {
+    width: 100%;
+    background: var(--rms-bg-secondary);
+    border: 1px solid var(--rms-border);
+    color: var(--rms-text-primary);
+    padding: 12px 16px;
+    border-radius: var(--rms-radius-sm);
+    font-size: 14px;
+    font-family: inherit;
+    transition: var(--rms-transition);
+    box-sizing: border-box;
+}
+
+.rmsautoblog-input:focus,
+.rmsautoblog-textarea:focus {
+    outline: none;
+    border-color: var(--rms-accent-primary);
+    box-shadow: 0 0 0 3px var(--rms-accent-glow);
+}
+
+.rmsautoblog-input::placeholder,
+.rmsautoblog-textarea::placeholder {
+    color: var(--rms-text-muted);
+}
+
+.rmsautoblog-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Custom modal close button fix */
+.rmsautoblog-modal-close .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    line-height: 1;
+}
+
+/* Description text in forms */
+.rmsautoblog-form-group .description {
+    color: var(--rms-text-muted);
+    font-size: 12px;
+    margin-top: 6px;
+}
