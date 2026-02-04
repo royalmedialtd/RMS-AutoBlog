@@ -1,5 +1,5 @@
-=== RMS Autoblog ===
-Contributors: royalmedia.us
+=== RMS AutoBlog ===
+Contributors: RMS
 Tags: autoblog, trending topics, content generation, SEO, marketing
 Requires at least: 5.8
 Tested up to: 6.4
@@ -12,7 +12,7 @@ Discover trending topics in SEO, Marketing, Web Development, and Mobile Developm
 
 == Description ==
 
-TechNews Autoblog helps you discover trending topics and create structured blog post drafts automatically. The plugin fetches trending news from:
+RMS AutoBlog helps you discover trending topics and create structured blog post drafts automatically. The plugin fetches trending news from:
 
 * **NewsAPI** - Real-time tech news headlines
 * **Google Trends RSS** - Daily trending searches
@@ -27,10 +27,10 @@ TechNews Autoblog helps you discover trending topics and create structured blog 
 
 == Installation ==
 
-1. Upload the `rms-autoblog` folder to `/wp-content/plugins/`
+1. Upload the `RMS-autoblog` folder to `/wp-content/plugins/`
 2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Go to **TechNews Autoblog > Settings** and enter your NewsAPI key
-4. Visit the **TechNews Autoblog** dashboard to start discovering trends!
+3. Go to **RMS AutoBlog > Settings** and enter your NewsAPI key
+4. Visit the **RMS AutoBlog** dashboard to start discovering trends!
 
 == Getting API Keys ==
 
@@ -38,7 +38,7 @@ TechNews Autoblog helps you discover trending topics and create structured blog 
 1. Visit [newsapi.org](https://newsapi.org/register)
 2. Create a free account
 3. Copy your API key
-4. Paste it in **TechNews Autoblog > Settings**
+4. Paste it in **RMS AutoBlog > Settings**
 
 Note: Free tier allows 100 requests per day.
 

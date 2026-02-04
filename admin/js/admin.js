@@ -1,11 +1,11 @@
 /**
- * TechNews Autoblog Admin JavaScript
+ * RMS AutoBlog Admin JavaScript
  */
 
 (function ($) {
     'use strict';
 
-    var TechNewsAutoblog = {
+    var RMSAutoblogApp = {
 
         // Current data
         trends: [],
@@ -25,28 +25,48 @@
             var self = this;
 
             // Fetch trends button
-            $('#technews-fetch-btn').on('click', function () {
+            $('#rmsautoblog-fetch-btn').on('click', function () {
                 self.fetchTrends();
             });
 
             // Category filter change
-            $('#technews-category').on('change', function () {
+            $('#rmsautoblog-category').on('change', function () {
                 self.filterTrends($(this).val());
             });
 
             // Create post button (delegated)
-            $(document).on('click', '.technews-create-btn', function () {
-                var $card = $(this).closest('.technews-trend-card');
+            $(document).on('click', '.rmsautoblog-create-btn', function () {
+                var $card = $(this).closest('.rmsautoblog-trend-card');
                 self.openModal($card.data('topic'), $card.data('category'));
             });
 
+            // Custom post button
+            $('#rmsautoblog-custom-post-btn').on('click', function () {
+                self.openCustomModal();
+            });
+
+            // AI suggestion button
+            $('#rmsautoblog-suggest-btn').on('click', function () {
+                self.getAISuggestions();
+            });
+
+            // Generate image button
+            $('#rmsautoblog-generate-image-btn').on('click', function () {
+                self.generateImage();
+            });
+
+            // Custom post create button
+            $('#rmsautoblog-custom-create-btn').on('click', function () {
+                self.createCustomPost();
+            });
+
             // Modal close
-            $('.technews-modal-close, .technews-modal-cancel, .technews-modal-overlay').on('click', function () {
+            $('.rmsautoblog-modal-close, .rmsautoblog-modal-cancel, .rmsautoblog-modal-overlay').on('click', function () {
                 self.closeModal();
             });
 
             // Create post submit
-            $('#technews-create-post-btn').on('click', function () {
+            $('#rmsautoblog-create-post-btn').on('click', function () {
                 self.createPost();
             });
 
@@ -63,18 +83,18 @@
          */
         fetchTrends: function () {
             var self = this;
-            var category = $('#technews-category').val();
+            var category = $('#rmsautoblog-category').val();
 
             console.log('TechNews: Fetching trends...', { category: category });
-            this.showStatus(technewsAutoblog.strings.fetching);
-            $('#technews-fetch-btn').prop('disabled', true);
+            this.showStatus(rmsautoblogSettings.strings.fetching);
+            $('#rmsautoblog-fetch-btn').prop('disabled', true);
 
             $.ajax({
-                url: technewsAutoblog.ajaxUrl,
+                url: rmsautoblogSettings.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'technews_fetch_trends',
-                    nonce: technewsAutoblog.nonce,
+                    action: 'rmsautoblog_fetch_trends',
+                    nonce: rmsautoblogSettings.nonce,
                     category: category
                 },
                 success: function (response) {
@@ -91,10 +111,10 @@
                 },
                 error: function (xhr, status, error) {
                     console.error('TechNews: AJAX Error', { xhr: xhr, status: status, error: error });
-                    self.showError(technewsAutoblog.strings.error + ' (Check console for details)');
+                    self.showError(rmsautoblogSettings.strings.error + ' (Check console for details)');
                 },
                 complete: function () {
-                    $('#technews-fetch-btn').prop('disabled', false);
+                    $('#rmsautoblog-fetch-btn').prop('disabled', false);
                 }
             });
         },
@@ -103,14 +123,14 @@
          * Render trends
          */
         renderTrends: function (trends) {
-            var $container = $('#technews-trends-container');
-            var template = wp.template('technews-trend-card');
+            var $container = $('#rmsautoblog-trends-container');
+            var template = wp.template('rmsautoblog-trend-card');
 
             $container.empty();
 
             if (trends.length === 0) {
                 $container.html(
-                    '<div class="technews-empty-state">' +
+                    '<div class="rmsautoblog-empty-state">' +
                     '<span class="dashicons dashicons-info"></span>' +
                     '<h3>No trends found</h3>' +
                     '<p>Try selecting a different category or check your API configuration.</p>' +
@@ -152,18 +172,18 @@
         openModal: function (topic, category) {
             this.currentTopic = topic;
 
-            $('#technews-post-title').val(topic);
-            $('#technews-post-category').val(category || 'seo');
+            $('#rmsautoblog-post-title').val(topic);
+            $('#rmsautoblog-post-category').val(category || 'seo');
 
-            $('#technews-modal').fadeIn(200);
-            $('#technews-post-title').focus();
+            $('#rmsautoblog-modal').fadeIn(200);
+            $('#rmsautoblog-post-title').focus();
         },
 
         /**
          * Close modal
          */
         closeModal: function () {
-            $('#technews-modal').fadeOut(200);
+            $('#rmsautoblog-modal').fadeOut(200);
             this.currentTopic = null;
         },
 
@@ -172,24 +192,24 @@
          */
         createPost: function () {
             var self = this;
-            var topic = $('#technews-post-title').val();
-            var category = $('#technews-post-category').val();
-            var useAI = $('#technews-use-ai').is(':checked');
+            var topic = $('#rmsautoblog-post-title').val();
+            var category = $('#rmsautoblog-post-category').val();
+            var useAI = $('#rmsautoblog-use-ai').is(':checked');
 
             if (!topic) {
                 alert('Please enter a post title');
                 return;
             }
 
-            $('#technews-create-post-btn').prop('disabled', true)
-                .html('<span class="spinner is-active" style="float:none;margin:0 8px 0 0;"></span> ' + technewsAutoblog.strings.creating);
+            $('#rmsautoblog-create-post-btn').prop('disabled', true)
+                .html('<span class="spinner is-active" style="float:none;margin:0 8px 0 0;"></span> ' + rmsautoblogSettings.strings.creating);
 
             $.ajax({
-                url: technewsAutoblog.ajaxUrl,
+                url: rmsautoblogSettings.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'technews_create_post',
-                    nonce: technewsAutoblog.nonce,
+                    action: 'rmsautoblog_create_post',
+                    nonce: rmsautoblogSettings.nonce,
                     topic: topic,
                     category: category,
                     use_ai: useAI ? 1 : 0
@@ -207,10 +227,10 @@
                     }
                 },
                 error: function () {
-                    self.showError(technewsAutoblog.strings.error);
+                    self.showError(rmsautoblogSettings.strings.error);
                 },
                 complete: function () {
-                    $('#technews-create-post-btn').prop('disabled', false)
+                    $('#rmsautoblog-create-post-btn').prop('disabled', false)
                         .html('<span class="dashicons dashicons-edit"></span> Create Draft Post');
                 }
             });
@@ -220,16 +240,171 @@
          * Show status message
          */
         showStatus: function (message) {
-            $('#technews-status .status-text').text(message);
-            $('#technews-status').slideDown(200);
-            $('#technews-error, #technews-success').slideUp(200);
+            $('#rmsautoblog-status .status-text').text(message);
+            $('#rmsautoblog-status').slideDown(200);
+            $('#rmsautoblog-error, #rmsautoblog-success').slideUp(200);
         },
 
         /**
-         * Hide status message
+         * Open custom post modal
+         */
+        openCustomModal: function () {
+            // Reset form
+            $('#rmsautoblog-custom-keyword').val('');
+            $('#rmsautoblog-custom-title').val('');
+            $('#rmsautoblog-custom-structure').val('');
+            $('#rmsautoblog-generated-image').hide();
+            $('#rmsautoblog-image-path').val('');
+
+            // Show modal
+            $('#rmsautoblog-custom-modal').fadeIn(200);
+        },
+
+        /**
+         * Get AI suggestions for title and structure
+         */
+        getAISuggestions: function () {
+            var self = this;
+            var keyword = $('#rmsautoblog-custom-keyword').val().trim();
+
+            if (!keyword) {
+                alert('Please enter a keyword first');
+                return;
+            }
+
+            $('#rmsautoblog-suggest-btn').prop('disabled', true)
+                .html('<span class="spinner is-active" style="float:none;margin:0 8px 0 0;"></span> Getting suggestions...');
+
+            $.ajax({
+                url: rmsautoblogSettings.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'rmsautoblog_get_suggestions',
+                    nonce: rmsautoblogSettings.nonce,
+                    keyword: keyword
+                },
+                success: function (response) {
+                    if (response.success && response.data) {
+                        if (response.data.title) {
+                            $('#rmsautoblog-custom-title').val(response.data.title);
+                        }
+                        if (response.data.structure) {
+                            $('#rmsautoblog-custom-structure').val(response.data.structure);
+                        }
+                    } else {
+                        alert(response.data.message || 'Failed to get suggestions');
+                    }
+                },
+                error: function () {
+                    alert('Error getting AI suggestions');
+                },
+                complete: function () {
+                    $('#rmsautoblog-suggest-btn').prop('disabled', false)
+                        .html('<span class="dashicons dashicons-lightbulb"></span> Get AI Suggestions');
+                }
+            });
+        },
+
+        /**
+         * Generate AI image
+         */
+        generateImage: function () {
+            var self = this;
+            var keyword = $('#rmsautoblog-custom-keyword').val().trim();
+            var title = $('#rmsautoblog-custom-title').val().trim();
+            var prompt = title || keyword;
+
+            if (!prompt) {
+                alert('Please enter a keyword or title first');
+                return;
+            }
+
+            $('#rmsautoblog-generate-image-btn').prop('disabled', true)
+                .html('<span class="spinner is-active" style="float:none;margin:0 8px 0 0;"></span> Generating image...');
+
+            $.ajax({
+                url: rmsautoblogSettings.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'rmsautoblog_generate_image',
+                    nonce: rmsautoblogSettings.nonce,
+                    prompt: 'Professional blog header image for: ' + prompt
+                },
+                success: function (response) {
+                    if (response.success && response.data.image_url) {
+                        $('#rmsautoblog-generated-image img').attr('src', response.data.image_url);
+                        $('#rmsautoblog-image-path').val(response.data.image_path);
+                        $('#rmsautoblog-generated-image').fadeIn(200);
+                    } else {
+                        alert(response.data.message || 'Failed to generate image');
+                    }
+                },
+                error: function () {
+                    alert('Error generating image');
+                },
+                complete: function () {
+                    $('#rmsautoblog-generate-image-btn').prop('disabled', false)
+                        .html('<span class="dashicons dashicons-format-image"></span> Generate AI Image');
+                }
+            });
+        },
+
+        /**
+         * Create custom post
+         */
+        createCustomPost: function () {
+            var self = this;
+            var keyword = $('#rmsautoblog-custom-keyword').val().trim();
+            var title = $('#rmsautoblog-custom-title').val().trim();
+            var structure = $('#rmsautoblog-custom-structure').val().trim();
+            var category = $('#rmsautoblog-custom-category').val();
+            var useAI = $('#rmsautoblog-custom-use-ai').is(':checked');
+            var imagePath = $('#rmsautoblog-image-path').val();
+
+            if (!keyword) {
+                alert('Please enter a keyword');
+                return;
+            }
+
+            $('#rmsautoblog-custom-create-btn').prop('disabled', true)
+                .html('<span class="spinner is-active" style="float:none;margin:0 8px 0 0;"></span> Creating post...');
+
+            $.ajax({
+                url: rmsautoblogSettings.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'rmsautoblog_create_custom_post',
+                    nonce: rmsautoblogSettings.nonce,
+                    keyword: keyword,
+                    title: title,
+                    structure: structure,
+                    category: category,
+                    use_ai: useAI ? '1' : '0',
+                    image_path: imagePath
+                },
+                success: function (response) {
+                    if (response.success) {
+                        self.showSuccess(response.data.message + ' <a href="' + response.data.edit_url + '">Edit Post</a>');
+                        $('#rmsautoblog-custom-modal').fadeOut(200);
+                    } else {
+                        alert(response.data.message || 'Failed to create post');
+                    }
+                },
+                error: function () {
+                    alert('Error creating post');
+                },
+                complete: function () {
+                    $('#rmsautoblog-custom-create-btn').prop('disabled', false)
+                        .html('<span class="dashicons dashicons-yes"></span> Create Draft Post');
+                }
+            });
+        },
+
+        /**
+         * Hide status messages
          */
         hideStatus: function () {
-            $('#technews-status').slideUp(200);
+            $('#rmsautoblog-status').slideUp(200);
         },
 
         /**
@@ -237,12 +412,12 @@
          */
         showError: function (message) {
             this.hideStatus();
-            $('#technews-error p').html(message);
-            $('#technews-error').slideDown(200);
-            $('#technews-success').slideUp(200);
+            $('#rmsautoblog-error p').html(message);
+            $('#rmsautoblog-error').slideDown(200);
+            $('#rmsautoblog-success').slideUp(200);
 
             setTimeout(function () {
-                $('#technews-error').slideUp(200);
+                $('#rmsautoblog-error').slideUp(200);
             }, 5000);
         },
 
@@ -251,15 +426,18 @@
          */
         showSuccess: function (message) {
             this.hideStatus();
-            $('#technews-success p').html(message);
-            $('#technews-success').slideDown(200);
-            $('#technews-error').slideUp(200);
+            $('#rmsautoblog-success p').html(message);
+            $('#rmsautoblog-success').slideDown(200);
+            $('#rmsautoblog-error').slideUp(200);
         }
     };
 
     // Initialize on document ready
     $(document).ready(function () {
-        TechNewsAutoblog.init();
+        RMSAutoblogApp.init();
     });
 
 })(jQuery);
+
+
+

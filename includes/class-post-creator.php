@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class TechNews_Post_Creator {
+class rmsautoblog_Post_Creator {
     
     /**
      * Create a draft post
@@ -38,11 +38,17 @@ class TechNews_Post_Creator {
         // Set SEO meta if plugins available
         $this->set_seo_meta($post_id, $content);
         
+        // Assign tags from keywords
+        $this->assign_tags($post_id, $content);
+        
+        // Process featured image
+        $this->process_featured_image($post_id, $content, $topic);
+        
         // Add post meta for tracking
-        update_post_meta($post_id, '_technews_autoblog_generated', true);
-        update_post_meta($post_id, '_technews_autoblog_topic', sanitize_text_field($topic));
-        update_post_meta($post_id, '_technews_autoblog_date', current_time('mysql'));
-        update_post_meta($post_id, '_technews_autoblog_ai', !empty($content['ai_generated']));
+        update_post_meta($post_id, '_rmsautoblog_autoblog_generated', true);
+        update_post_meta($post_id, '_rmsautoblog_autoblog_topic', sanitize_text_field($topic));
+        update_post_meta($post_id, '_rmsautoblog_autoblog_date', current_time('mysql'));
+        update_post_meta($post_id, '_rmsautoblog_autoblog_ai', !empty($content['ai_generated']));
         
         return $post_id;
     }
@@ -265,7 +271,7 @@ class TechNews_Post_Creator {
      */
     private function assign_category($post_id, $category_slug) {
         // Get custom categories from settings
-        $custom_categories = get_option('technews_custom_categories', '');
+        $custom_categories = get_option('rmsautoblog_custom_categories', '');
         $category_lines = array_filter(array_map('trim', explode("\n", $custom_categories)));
         
         // Try to find matching category
@@ -293,22 +299,39 @@ class TechNews_Post_Creator {
     }
     
     /**
-     * Set SEO meta for popular SEO plugins
+     * Assign tags from LSI keywords
+     */
+    private function assign_tags($post_id, $content) {
+        if (empty($content['keywords']) || !is_array($content['keywords'])) {
+            return;
+        }
+        
+        // Use keywords as tags (skip first one as it's the focus keyword, use the rest as tags)
+        $tags = array_slice($content['keywords'], 1, 8);
+        
+        if (!empty($tags)) {
+            wp_set_post_tags($post_id, $tags, false);
+        }
+    }
+    
+    /**
+     * Set SEO meta for popular SEO plugins (Yoast & AIOSEO)
+     * Note: RankMath is intentionally not included to avoid interference
      */
     private function set_seo_meta($post_id, $content) {
-        $focus_keyword = !empty($content['keywords']) ? $content['keywords'][0] : '';
+        $focus_keyword = !empty($content['keywords']) ? $content['keywords'][0] : ''
+;
         $meta_description = $content['meta_description'] ?? '';
-        
-        // RankMath
-        if (class_exists('RankMath')) {
-            update_post_meta($post_id, 'rank_math_focus_keyword', $focus_keyword);
-            update_post_meta($post_id, 'rank_math_description', $meta_description);
-        }
         
         // Yoast SEO
         if (defined('WPSEO_VERSION')) {
             update_post_meta($post_id, '_yoast_wpseo_focuskw', $focus_keyword);
             update_post_meta($post_id, '_yoast_wpseo_metadesc', $meta_description);
+            
+            // Add additional LSI keywords if available
+            if (!empty($content['keywords']) && count($content['keywords']) > 1) {
+                update_post_meta($post_id, '_yoast_wpseo_focuskeywords', json_encode(array_slice($content['keywords'], 1, 4)));
+            }
         }
         
         // All in One SEO
@@ -324,4 +347,166 @@ class TechNews_Post_Creator {
     private function sanitize_title($topic) {
         return ucwords(strtolower(sanitize_text_field($topic)));
     }
+    
+    /**
+     * Process and attach featured image to post
+     */
+    private function process_featured_image($post_id, $content, $topic) {
+        // Try to find relevant image from RSS content or use placeholder
+        $image_url = $this->find_relevant_image($content, $topic);
+        
+        if ($image_url) {
+            $attachment_id = $this->download_and_attach_image($post_id, $image_url);
+            if ($attachment_id) {
+                set_post_thumbnail($post_id, $attachment_id);
+                
+                // Add image alt text for SEO
+                $alt_text = $this->generate_alt_text($topic);
+                update_post_meta($attachment_id, '_wp_attachment_image_alt', $alt_text);
+                
+                // Add image caption
+                wp_update_post(array(
+                    'ID' => $attachment_id,
+                    'post_excerpt' => $alt_text
+                ));
+            }
+        }
+    }
+    
+    /**
+     * Find relevant image from content or generate one
+     */
+    private function find_relevant_image($content, $topic) {
+        // First, try to extract image from RSS content if available
+        if (!empty($content['rss_images']) && is_array($content['rss_images'])) {
+            foreach ($content['rss_images'] as $image_url) {
+                if ($this->is_valid_image_url($image_url)) {
+                    return $image_url;
+                }
+            }
+        }
+        
+        // Check if content has embedded images
+        if (!empty($content['content']) && is_string($content['content'])) {
+            // Try to extract image URLs from markdown or HTML content
+            preg_match_all('/\!\[.*?\]\((https?:\/\/[^\)]+\.(jpg|jpeg|png|gif|webp))\)/i', $content['content'], $matches);
+            if (!empty($matches[1][0]) && $this->is_valid_image_url($matches[1][0])) {
+                return $matches[1][0];
+            }
+        }
+        
+        // If no image found, return false (could integrate with Unsplash API or similar in future)
+        return false;
+    }
+    
+    /**
+     * Validate image URL
+     */
+    private function is_valid_image_url($url) {
+        if (empty($url) || !filter_var($url, FILTER_VALIDATE_URL)) {
+            return false;
+        }
+        
+        $image_extensions = array('.jpg', '.jpeg', '.png', '.gif', '.webp');
+        $parsed_url = parse_url($url);
+        
+        if (!isset($parsed_url['path'])) {
+            return false;
+        }
+        
+        $path_lower = strtolower($parsed_url['path']);
+        foreach ($image_extensions as $ext) {
+            if (substr($path_lower, -strlen($ext)) === $ext) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Download and attach image to post
+     */
+    private function download_and_attach_image($post_id, $image_url) {
+        // Download image
+        $image_data = wp_remote_get($image_url, array(
+            'timeout' => 15,
+            'headers' => array(
+                'User-Agent' => 'TechNews-Autoblog/1.0 (WordPress Plugin)'
+            )
+        ));
+        
+        if (is_wp_error($image_data)) {
+            return false;
+        }
+        
+        $image_body = wp_remote_retrieve_body($image_data);
+        $image_type = wp_remote_retrieve_header($image_data, 'content-type');
+        
+        if (empty($image_body)) {
+            return false;
+        }
+        
+        // Determine file extension
+        switch ($image_type) {
+            case 'image/jpeg':
+                $ext = '.jpg';
+                break;
+            case 'image/png':
+                $ext = '.png';
+                break;
+            case 'image/gif':
+                $ext = '.gif';
+                break;
+            case 'image/webp':
+                $ext = '.webp';
+                break;
+            default:
+                $ext = '.jpg';
+        }
+        
+        // Create file name
+        $filename = sanitize_file_name('technews-' . $post_id . '-' . time() . $ext);
+        
+        // Upload directory
+        $upload_dir = wp_upload_dir();
+        $file_path = $upload_dir['path'] . '/' . $filename;
+        
+        // Save file
+        $file_saved = file_put_contents($file_path, $image_body);
+        
+        if ($file_saved === false) {
+            return false;
+        }
+        
+        // Create attachment
+        $attachment = array(
+            'guid'           => $upload_dir['url'] . '/' . $filename,
+            'post_mime_type' => $image_type,
+            'post_title'     => preg_replace('/\.[^.]+$/', '', $filename),
+            'post_content'   => '',
+            'post_status'    => 'inherit'
+        );
+        
+        $attach_id = wp_insert_attachment($attachment, $file_path, $post_id);
+        
+        if (is_wp_error($attach_id)) {
+            return false;
+        }
+        
+        // Generate metadata
+        require_once(ABSPATH . 'wp-admin/includes/image.php');
+        $attach_data = wp_generate_attachment_metadata($attach_id, $file_path);
+        wp_update_attachment_metadata($attach_id, $attach_data);
+        
+        return $attach_id;
+    }
+    
+    /**
+     * Generate alt text for images
+     */
+    private function generate_alt_text($topic) {
+        return 'Illustration related to ' . sanitize_text_field($topic);
+    }
 }
+

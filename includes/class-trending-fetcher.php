@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class TechNews_Trending_Fetcher {
+class rmsautoblog_Trending_Fetcher {
     
     private $newsapi_base = 'https://newsapi.org/v2/';
     private $google_trends_rss = 'https://trends.google.com/trends/trendingsearches/daily/rss';
@@ -17,7 +17,7 @@ class TechNews_Trending_Fetcher {
      * Get category keywords from settings
      */
     private function get_category_keywords() {
-        $custom_categories = get_option('technews_custom_categories', "SEO\nDigital Marketing\nWeb Development\nMobile Development");
+        $custom_categories = get_option('rmsautoblog_custom_categories', "SEO\nDigital Marketing\nWeb Development\nMobile Development");
         $lines = array_filter(array_map('trim', explode("\n", $custom_categories)));
         
         $keywords = array();
@@ -64,13 +64,13 @@ class TechNews_Trending_Fetcher {
      * Fetch from custom RSS feeds
      */
     private function fetch_from_custom_rss($category = '') {
-        $feeds_raw = get_option('technews_rss_feeds', '');
+        $feeds_raw = get_option('rmsautoblog_rss_feeds', '');
         if (empty($feeds_raw)) {
             return array();
         }
         
         $feeds = array_filter(array_map('trim', explode("\n", $feeds_raw)));
-        $limit = (int) get_option('technews_rss_limit', 5);
+        $limit = (int) get_option('rmsautoblog_rss_limit', 5);
         $trends = array();
         
         foreach ($feeds as $feed_url) {
@@ -104,7 +104,7 @@ class TechNews_Trending_Fetcher {
         
         $body = wp_remote_retrieve_body($response);
         if (empty($body)) {
-            return new WP_Error('empty_feed', __('Empty RSS feed', 'technews-autoblog'));
+            return new WP_Error('empty_feed', __('Empty RSS feed', 'rms-autoblog'));
         }
         
         // Parse XML
@@ -112,7 +112,7 @@ class TechNews_Trending_Fetcher {
         $xml = simplexml_load_string($body);
         
         if ($xml === false) {
-            return new WP_Error('invalid_xml', __('Invalid RSS feed format', 'technews-autoblog'));
+            return new WP_Error('invalid_xml', __('Invalid RSS feed format', 'rms-autoblog'));
         }
         
         $trends = array();
@@ -202,15 +202,15 @@ class TechNews_Trending_Fetcher {
      * Fetch from NewsAPI
      */
     private function fetch_from_newsapi($category = '') {
-        $api_key = get_option('technews_newsapi_key', '');
-        
+        $api_key = get_option('rmsautoblog_newsapi_key', '');
+
         if (empty($api_key)) {
-            return new WP_Error('no_api_key', __('NewsAPI key is not configured', 'technews-autoblog'));
+            return new WP_Error('no_api_key', __('NewsAPI key is not configured', 'rms-autoblog'));
         }
-        
+
         $keywords = $this->get_keywords_for_category($category);
         $query = implode(' OR ', array_slice($keywords, 0, 5));
-        
+
         $url = add_query_arg(array(
             'q' => urlencode($query),
             'language' => 'en',
@@ -218,27 +218,66 @@ class TechNews_Trending_Fetcher {
             'pageSize' => 20,
             'apiKey' => $api_key
         ), $this->newsapi_base . 'everything');
-        
+
         $response = wp_remote_get($url, array(
             'timeout' => 15,
             'headers' => array(
-                'User-Agent' => 'TechNews-Autoblog/1.0'
+                'User-Agent' => 'rms-autoblog/2.0.0 (WordPress Plugin)'
             )
         ));
-        
+
         if (is_wp_error($response)) {
             return $response;
         }
-        
+
+        $code = wp_remote_retrieve_response_code($response);
         $body = wp_remote_retrieve_body($response);
         $data = json_decode($body, true);
-        
+
+        // Handle various NewsAPI error responses
+        if ($code === 426) {
+            // This error occurs when using free tier from non-localhost
+            return new WP_Error(
+                'newsapi_upgrade_required',
+                __('NewsAPI free plan only works from localhost. Upgrade to a paid plan for production use, or rely on RSS feeds.', 'rms-autoblog')
+            );
+        }
+
+        if ($code === 401) {
+            return new WP_Error(
+                'newsapi_unauthorized',
+                __('NewsAPI key is invalid or expired. Please check your API key in Settings.', 'rms-autoblog')
+            );
+        }
+
+        if ($code === 429) {
+            return new WP_Error(
+                'newsapi_rate_limit',
+                __('NewsAPI rate limit exceeded. Please wait before trying again.', 'rms-autoblog')
+            );
+        }
+
+        if ($code !== 200) {
+            $error_message = isset($data['message']) ? $data['message'] : __('NewsAPI request failed', 'rms-autoblog');
+            return new WP_Error('newsapi_error', $error_message . ' (HTTP ' . $code . ')');
+        }
+
+        if (isset($data['status']) && $data['status'] === 'error') {
+            $error_message = isset($data['message']) ? $data['message'] : __('NewsAPI returned an error', 'rms-autoblog');
+            return new WP_Error('newsapi_error', $error_message);
+        }
+
         if (empty($data['articles'])) {
             return array();
         }
-        
+
         $trends = array();
         foreach ($data['articles'] as $article) {
+            // Skip articles with "[Removed]" title (NewsAPI placeholder for deleted content)
+            if (isset($article['title']) && $article['title'] === '[Removed]') {
+                continue;
+            }
+
             $trends[] = array(
                 'title' => sanitize_text_field($article['title']),
                 'description' => sanitize_text_field($article['description'] ?? ''),
@@ -249,7 +288,7 @@ class TechNews_Trending_Fetcher {
                 'category' => $category ?: $this->detect_category($article['title'] . ' ' . ($article['description'] ?? ''))
             );
         }
-        
+
         return $trends;
     }
     
@@ -273,7 +312,7 @@ class TechNews_Trending_Fetcher {
         // Parse RSS
         $xml = simplexml_load_string($body);
         if ($xml === false) {
-            return new WP_Error('parse_error', __('Failed to parse Google Trends RSS', 'technews-autoblog'));
+            return new WP_Error('parse_error', __('Failed to parse Google Trends RSS', 'rms-autoblog'));
         }
         
         $trends = array();
@@ -383,35 +422,52 @@ class TechNews_Trending_Fetcher {
      * Test API connection
      */
     public function test_connection() {
-        $api_key = get_option('technews_newsapi_key', '');
-        
+        $api_key = get_option('rmsautoblog_newsapi_key', '');
+
         if (empty($api_key)) {
-            return new WP_Error('no_api_key', __('API key not configured', 'technews-autoblog'));
+            return new WP_Error('no_api_key', __('API key not configured', 'rms-autoblog'));
         }
-        
+
         $url = add_query_arg(array(
             'q' => 'technology',
             'pageSize' => 1,
             'apiKey' => $api_key
         ), $this->newsapi_base . 'everything');
-        
+
         $response = wp_remote_get($url, array(
             'timeout' => 10,
             'headers' => array(
-                'User-Agent' => 'TechNews-Autoblog/1.0 (WordPress Plugin)'
+                'User-Agent' => 'rms-autoblog/2.0.0 (WordPress Plugin)'
             )
         ));
-        
+
         if (is_wp_error($response)) {
             return $response;
         }
-        
+
         $code = wp_remote_retrieve_response_code($response);
-        if ($code !== 200) {
-            $body = json_decode(wp_remote_retrieve_body($response), true);
-            return new WP_Error('api_error', $body['message'] ?? __('API request failed', 'technews-autoblog'));
+        $body = json_decode(wp_remote_retrieve_body($response), true);
+
+        if ($code === 426) {
+            return new WP_Error(
+                'upgrade_required',
+                __('NewsAPI free plan only works from localhost. Your API key is valid, but you need a paid plan for production servers. RSS feeds will still work.', 'rms-autoblog')
+            );
         }
-        
+
+        if ($code === 401) {
+            return new WP_Error('unauthorized', __('Invalid API key. Please check your NewsAPI key.', 'rms-autoblog'));
+        }
+
+        if ($code === 429) {
+            return new WP_Error('rate_limit', __('Rate limit exceeded. Please wait before testing again.', 'rms-autoblog'));
+        }
+
+        if ($code !== 200) {
+            return new WP_Error('api_error', $body['message'] ?? __('API request failed (HTTP ' . $code . ')', 'rms-autoblog'));
+        }
+
         return true;
     }
 }
+

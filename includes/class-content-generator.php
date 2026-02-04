@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class TechNews_Content_Generator {
+class rmsautoblog_Content_Generator {
     
     private $length_tokens = array(
         'short' => 1000,
@@ -28,36 +28,40 @@ class TechNews_Content_Generator {
     /**
      * Generate content for a topic
      */
-    public function generate($topic, $category = 'general') {
-        // Check if OpenAI is configured
-        $openai_key = get_option('technews_openai_key', '');
+    public function generate($topic, $category = 'general', $use_ai = true, $custom_structure = '') {
+        // Check if OpenAI is configured and AI is requested
+        $openai_key = get_option('rmsautoblog_openai_key', '');
         
-        if (!empty($openai_key)) {
-            $ai_content = $this->generate_with_ai($topic, $category);
+        if ($use_ai && !empty($openai_key)) {
+            $ai_content = $this->generate_with_ai($topic, $category, $custom_structure);
             if (!is_wp_error($ai_content) && !empty($ai_content['content'])) {
+                return $ai_content;
+            }
+            // If AI failed, return the error instead of falling back silently
+            if (is_wp_error($ai_content)) {
                 return $ai_content;
             }
         }
         
         // Fallback to template-based generation
-        return $this->generate_template($topic, $category);
+        return $this->generate_template($topic, $category, $custom_structure);
     }
     
     /**
      * Generate content using OpenAI
      */
     private function generate_with_ai($topic, $category) {
-        $api_key = get_option('technews_openai_key', '');
-        $model = get_option('technews_openai_model', 'gpt-4o-mini');
+        $api_key = get_option('rmsautoblog_openai_key', '');
+        $model = get_option('rmsautoblog_openai_model', 'gpt-4o-mini');
         
         // Get settings
-        $brand_voice = get_option('technews_brand_voice', '');
-        $writing_style = get_option('technews_writing_style', 'professional');
-        $content_length = get_option('technews_content_length', 'medium');
-        $target_audience = get_option('technews_target_audience', '');
-        $include_examples = get_option('technews_include_examples', '1');
-        $include_stats = get_option('technews_include_stats', '1');
-        $include_cta = get_option('technews_include_cta', '1');
+        $brand_voice = get_option('rmsautoblog_brand_voice', '');
+        $writing_style = get_option('rmsautoblog_writing_style', 'professional');
+        $content_length = get_option('rmsautoblog_content_length', 'medium');
+        $target_audience = get_option('rmsautoblog_target_audience', '');
+        $include_examples = get_option('rmsautoblog_include_examples', '1');
+        $include_stats = get_option('rmsautoblog_include_stats', '1');
+        $include_cta = get_option('rmsautoblog_include_cta', '1');
         
         // Build the system prompt
         $system_prompt = $this->build_system_prompt($brand_voice, $writing_style, $target_audience);
@@ -99,12 +103,12 @@ class TechNews_Content_Generator {
         $body = json_decode(wp_remote_retrieve_body($response), true);
         
         if ($code !== 200) {
-            $error_message = $body['error']['message'] ?? __('OpenAI API request failed', 'technews-autoblog');
+            $error_message = $body['error']['message'] ?? __('OpenAI API request failed', 'rms-autoblog');
             return new WP_Error('openai_error', $error_message);
         }
         
         if (empty($body['choices'][0]['message']['content'])) {
-            return new WP_Error('openai_error', __('No content generated', 'technews-autoblog'));
+            return new WP_Error('openai_error', __('No content generated', 'rms-autoblog'));
         }
         
         $generated_content = $body['choices'][0]['message']['content'];
@@ -252,22 +256,49 @@ class TechNews_Content_Generator {
     }
     
     /**
-     * Generate focus keywords
+     * Generate focus keywords with LSI (Latent Semantic Indexing) keywords
      */
     private function generate_keywords($topic, $category) {
-        $base_keywords = array_map('strtolower', array_filter(explode(' ', $topic)));
+        return $this->generate_lsi_keywords($topic, $category);
+    }
+    
+    /**
+     * Generate LSI keywords for better SEO
+     */
+    private function generate_lsi_keywords($topic, $category) {
+        $lsi_keywords = array();
         
-        $keywords = array($topic);
-        $keywords[] = strtolower($topic);
+        // Base keywords from topic
+        $base_keywords = array_map('trim', explode(' ', strtolower($topic)));
         
-        if (!empty($category) && $category !== 'general') {
-            $keywords[] = $topic . ' ' . $category;
+        // Add category-specific keywords
+        $category_keywords = array(
+            'seo' => array('search engine optimization', 'SEO strategy', 'keyword research', 'backlinks', 'SERP'),
+            'marketing' => array('digital marketing', 'content marketing', 'social media', 'campaign', 'conversion'),
+            'digital-marketing' => array('digital marketing', 'online marketing', 'content strategy', 'social media marketing', 'email marketing'),
+            'web-development' => array('web development', 'frontend', 'backend', 'framework', 'responsive design'),
+            'mobile-development' => array('mobile app', 'iOS development', 'Android development', 'app store', 'cross-platform')
+        );
+        
+        // Add base LSI keywords
+        $lsi_keywords[] = $topic;
+        $lsi_keywords[] = strtolower($topic);
+        
+        if (!empty($category) && isset($category_keywords[$category])) {
+            $lsi_keywords = array_merge($lsi_keywords, $category_keywords[$category]);
         }
         
-        $keywords[] = $topic . ' guide';
-        $keywords[] = $topic . ' ' . date('Y');
+        // Add time-based keywords
+        $lsi_keywords[] = $topic . ' ' . date('Y');
+        $lsi_keywords[] = $topic . ' guide';
+        $lsi_keywords[] = 'how to ' . strtolower($topic);
+        $lsi_keywords[] = 'best ' . strtolower($topic);
         
-        return array_slice(array_unique($keywords), 0, 5);
+        // Add semantic variations
+        $lsi_keywords[] = strtolower($topic) . ' tips';
+        $lsi_keywords[] = strtolower($topic) . ' best practices';
+        
+        return array_slice(array_unique($lsi_keywords), 0, 10);
     }
     
     /**
@@ -311,3 +342,4 @@ class TechNews_Content_Generator {
         );
     }
 }
+
